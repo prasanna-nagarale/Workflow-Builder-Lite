@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>⚙️ Create Workflow</h2>
+<p>Build a custom workflow by selecting 1-5 steps that will run sequentially.</p>
+
+<label><strong>Workflow Name:</strong></label>
+<input type="text" id="name" placeholder="e.g., Blog Post Analyzer" maxlength="100">
+
+<h3>Select Steps (in order):</h3>
+<div class="checkbox-group">
+    <label class="checkbox-item">
+        <input type="checkbox" value="Clean Text">
+        <span>🧹 <strong>Clean Text</strong> - Remove filler words and normalize</span>
+    </label>
+    <label class="checkbox-item">
+        <input type="checkbox" value="Summarize">
+        <span>📝 <strong>Summarize</strong> - Create concise summary</span>
+    </label>
+    <label class="checkbox-item">
+        <input type="checkbox" value="Extract Key Points">
+        <span>🎯 <strong>Extract Key Points</strong> - Bullet point highlights</span>
+    </label>
+    <label class="checkbox-item">
+        <input type="checkbox" value="Tag Category">
+        <span>🏷️ <strong>Tag Category</strong> - Classify topic</span>
+    </label>
+    <label class="checkbox-item">
+        <input type="checkbox" value="Sentiment">
+        <span>😊 <strong>Sentiment</strong> - Analyze emotional tone</span>
+    </label>
+</div>
+
+<button onclick="createWorkflow()">Create Workflow</button>
+
+<script>
+async function createWorkflow() {
+    const name = document.getElementById("name").value.trim();
+    const steps = Array.from(document.querySelectorAll("input[type=checkbox]:checked"))
+        .map(c => c.value);
+
+    if (!name) {
+        alert("⚠️ Please enter a workflow name");
+        return;
+    }
+
+    if (steps.length === 0) {
+        alert("⚠️ Please select at least one step");
+        return;
+    }
+
+    try {
+        const response = await fetch("/api/workflows/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, steps })
+        });
+
+        if (response.ok) {
+            alert("✅ Workflow created successfully!");
+            document.getElementById("name").value = "";
+            document.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = false);
+        } else {
+            alert("❌ Failed to create workflow");
+        }
+    } catch (error) {
+        alert("❌ Error: " + error.message);
+    }
+}
+</script>
+{% endblock %}

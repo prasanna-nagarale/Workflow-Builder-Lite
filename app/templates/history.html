@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>📜 Run History</h2>
+<p>View your last 5 workflow executions.</p>
+
+<div id="history">Loading history...</div>
+
+<script>
+async function loadHistoryOnPage() {
+    try {
+        const response = await fetch("/api/runs/history");
+        const runs = await response.json();
+
+        const container = document.getElementById("history");
+        container.innerHTML = "";
+
+        if (runs.length === 0) {
+            container.innerHTML = "<p>No runs yet. Create a workflow and run it!</p>";
+            return;
+        }
+
+        runs.forEach(run => {
+            const item = document.createElement("div");
+            item.className = "history-item";
+            item.innerHTML = `
+                <h3>${run.workflow_name || "Workflow #" + run.workflow_id}</h3>
+                <p><strong>Input:</strong> ${run.input_preview}</p>
+                <p><small>📅 ${new Date(run.created_at).toLocaleString()}</small></p>
+            `;
+            container.appendChild(item);
+        });
+    } catch (error) {
+        console.error("Failed to load history:", error);
+        document.getElementById("history").innerHTML = '<p style="color: #f56565;">❌ Failed to load history</p>';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadHistoryOnPage);
+</script>
+{% endblock %}

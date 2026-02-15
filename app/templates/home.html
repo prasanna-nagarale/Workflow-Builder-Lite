@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>🚀 Workflow Builder Lite</h1>
+<p>Create AI-powered workflows to process text through multiple steps.</p>
+
+<div class="alert alert-info">
+    <strong>How it works:</strong>
+    <ol style="margin: 10px 0 0 20px; line-height: 1.8;">
+        <li>Go to <strong>Builder</strong> to create a workflow with 2-4 AI steps</li>
+        <li>Go to <strong>Run</strong> to execute your workflow on any text</li>
+        <li>Check <strong>History</strong> to see your last 5 runs</li>
+        <li>Visit <strong>Status</strong> to verify system health</li>
+    </ol>
+</div>
+
+<h3>Available Steps:</h3>
+<div class="checkbox-group">
+    <div class="checkbox-item">
+        <span style="font-size: 1.5em; margin-right: 10px;">🧹</span>
+        <div>
+            <strong>Clean Text</strong><br>
+            <small>Remove filler words, fix grammar, normalize formatting</small>
+        </div>
+    </div>
+    <div class="checkbox-item">
+        <span style="font-size: 1.5em; margin-right: 10px;">📝</span>
+        <div>
+            <strong>Summarize</strong><br>
+            <small>Generate a 3-4 sentence summary of the text</small>
+        </div>
+    </div>
+    <div class="checkbox-item">
+        <span style="font-size: 1.5em; margin-right: 10px;">🎯</span>
+        <div>
+            <strong>Extract Key Points</strong><br>
+            <small>Pull out 5-7 bullet points of main ideas</small>
+        </div>
+    </div>
+    <div class="checkbox-item">
+        <span style="font-size: 1.5em; margin-right: 10px;">🏷️</span>
+        <div>
+            <strong>Tag Category</strong><br>
+            <small>Classify text into categories (Tech, Business, etc.)</small>
+        </div>
+    </div>
+    <div class="checkbox-item">
+        <span style="font-size: 1.5em; margin-right: 10px;">😊</span>
+        <div>
+            <strong>Sentiment Analysis</strong><br>
+            <small>Analyze emotional tone (Positive/Negative/Neutral/Mixed)</small>
+        </div>
+    </div>
+</div>
+
+<a href="/builder"><button>Get Started →</button></a>
+{% endblock %}

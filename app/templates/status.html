@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>🔍 System Status</h2>
+<p>Check the health of backend, database, and LLM connection.</p>
+
+<div id="status">Loading status...</div>
+
+<div class="alert alert-info" style="margin-top: 30px;">
+    <strong>Status Indicators:</strong><br>
+    <p style="margin-top: 10px;">
+        ✅ <strong>OK</strong> - Service is healthy and operational<br>
+        ❌ <strong>ERROR</strong> - Service has issues, check configuration
+    </p>
+</div>
+
+<script>
+async function loadStatusOnPage() {
+    try {
+        const response = await fetch("/api/status");
+        const data = await response.json();
+
+        const container = document.getElementById("status");
+        container.innerHTML = "";
+
+        const statusGrid = document.createElement("div");
+        statusGrid.className = "status-grid";
+
+        for (const [key, value] of Object.entries(data)) {
+            const item = document.createElement("div");
+            item.className = "status-item";
+            
+            const label = key.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+            const statusClass = value === "OK" || value === true ? "status-ok" : "status-error";
+            const displayValue = typeof value === "boolean" ? (value ? "✅ Loaded" : "❌ Missing") : value;
+            
+            item.innerHTML = `
+                <span><strong>${label}:</strong></span>
+                <span class="${statusClass}">${displayValue}</span>
+            `;
+            statusGrid.appendChild(item);
+        }
+
+        container.appendChild(statusGrid);
+    } catch (error) {
+        console.error("Failed to load status:", error);
+        document.getElementById("status").innerHTML = '<p style="color: #f56565;">❌ Failed to load status</p>';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadStatusOnPage);
+</script>
+{% endblock %}

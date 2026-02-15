@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>▶️ Run Workflow</h2>
+<p>Select a workflow and paste your text to process it through AI steps.</p>
+
+<label><strong>Select Workflow:</strong></label>
+<select id="workflowSelect">
+    <option value="">Loading workflows...</option>
+</select>
+
+<label style="display: block; margin-top: 20px;"><strong>Input Text:</strong></label>
+<textarea id="text" placeholder="Paste your text here to process through the workflow..."></textarea>
+
+<button onclick="runWorkflow()">▶️ Run Workflow</button>
+
+<div id="loading" class="loading" style="display:none;">Processing workflow</div>
+
+<div id="results"></div>
+
+<script>
+// Load workflows when page loads
+async function loadWorkflowsOnPage() {
+    try {
+        const response = await fetch("/api/workflows/");
+        const workflows = await response.json();
+
+        const select = document.getElementById("workflowSelect");
+        select.innerHTML = "";
+
+        if (workflows.length === 0) {
+            const option = document.createElement("option");
+            option.text = "No workflows yet - create one first";
+            option.disabled = true;
+            select.appendChild(option);
+            return;
+        }
+
+        workflows.forEach(w => {
+            const option = document.createElement("option");
+            option.value = w.id;
+            option.text = `${w.name} (${w.steps.length} steps)`;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error("Failed to load workflows:", error);
+        const select = document.getElementById("workflowSelect");
+        select.innerHTML = '<option>Error loading workflows</option>';
+    }
+}
+
+async function runWorkflow() {
+    const text = document.getElementById("text").value.trim();
+    const workflowId = document.getElementById("workflowSelect").value;
+
+    if (!workflowId) {
+        alert("⚠️ Please select a workflow first");
+        return;
+    }
+
+    if (!text) {
+        alert("⚠️ Please enter some text to process");
+        return;
+    }
+
+    const loading = document.getElementById("loading");
+    const results = document.getElementById("results");
+    const runBtn = document.querySelector("button");
+
+    loading.style.display = "block";
+    results.innerHTML = "";
+    runBtn.disabled = true;
+
+    try {
+        const response = await fetch("/api/runs/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                workflow_id: parseInt(workflowId),
+                input_text: text
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        loading.style.display = "none";
+        runBtn.disabled = false;
+
+        // Display results
+        for (const [step, output] of Object.entries(data)) {
+            const box = document.createElement("div");
+            box.className = "output-box";
+            box.innerHTML = `
+                <h3>📌 ${step}</h3>
+                <pre>${output}</pre>
+            `;
+            results.appendChild(box);
+        }
+    } catch (error) {
+        loading.style.display = "none";
+        runBtn.disabled = false;
+        results.innerHTML = `<div class="output-box" style="border-left-color: #f56565;"><h3>❌ Error</h3><pre>${error.message}</pre></div>`;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadWorkflowsOnPage);
+</script>
+{% endblock %}
